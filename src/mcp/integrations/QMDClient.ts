@@ -47,10 +47,35 @@ export class QMDClient {
       return this.settings.qmdPath;
     }
 
-    // Use safe command finder
-    return findCommand('qmd', [
-      `${process.env.HOME}/.bun/bin/qmd`,
-    ]);
+    const home = process.env.HOME || '';
+
+    // Check all common QMD install locations
+    const qmdPaths = [
+      `${home}/.bun/bin/qmd`,
+      `${home}/.local/bin/qmd`,
+      '/usr/local/bin/qmd',
+      '/opt/homebrew/bin/qmd',
+      '/usr/bin/qmd',
+      // npm global installs
+      `${home}/.npm-global/bin/qmd`,
+      '/usr/local/lib/node_modules/.bin/qmd',
+      // cargo installs (if QMD is built from source)
+      `${home}/.cargo/bin/qmd`,
+    ];
+
+    // Check each path directly
+    for (const qmdPath of qmdPaths) {
+      if (fs.existsSync(qmdPath)) {
+        // Verify it's executable
+        const result = await execFileNoThrow(qmdPath, ['--version'], { timeout: 5000 });
+        if (result.status === 'success') {
+          return qmdPath;
+        }
+      }
+    }
+
+    // Fallback: use findCommand which also tries 'which'
+    return findCommand('qmd', qmdPaths);
   }
 
   /**

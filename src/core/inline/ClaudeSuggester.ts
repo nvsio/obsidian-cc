@@ -54,16 +54,24 @@ const CC_INSTALL: ClaudeSuggestion = {
   description: 'Install and launch Claude CLI',
 };
 
+// @qmd option
+const QMD_SEARCH: ClaudeSuggestion = {
+  type: 'search',
+  label: '🔍 Semantic Search',
+  description: 'Search vault with QMD',
+};
+
 /**
  * Claude Code-style inline completions
  * - Type @claude to see quick commands
  * - Type @claude <prompt> for custom requests
  * - Type @cc to open in Claude CLI
+ * - Type @qmd for semantic search
  */
 export class ClaudeSuggester extends EditorSuggest<ClaudeSuggestion> {
   plugin: ObsidianCCPlugin;
   private isExecuting = false;
-  private currentTrigger: 'claude' | 'cc' = 'claude';
+  private currentTrigger: 'claude' | 'cc' | 'qmd' = 'claude';
   private cliInstalled: boolean | null = null;
 
   constructor(plugin: ObsidianCCPlugin) {
@@ -128,7 +136,11 @@ export class ClaudeSuggester extends EditorSuggest<ClaudeSuggestion> {
     const line = editor.getLine(cursor.line);
     const beforeCursor = line.slice(0, cursor.ch);
 
-    // Check for @cc trigger first (more specific)
+    // Check for @qmd trigger
+    const qmdTrigger = '@qmd';
+    const qmdIndex = beforeCursor.lastIndexOf(qmdTrigger);
+
+    // Check for @cc trigger
     const ccTrigger = this.plugin.settings.agenticTrigger;
     const ccIndex = beforeCursor.lastIndexOf(ccTrigger);
 
@@ -136,8 +148,17 @@ export class ClaudeSuggester extends EditorSuggest<ClaudeSuggestion> {
     const claudeTrigger = this.plugin.settings.inlineTrigger;
     const claudeIndex = beforeCursor.lastIndexOf(claudeTrigger);
 
-    // Use whichever trigger appears later (more recent)
-    if (ccIndex > claudeIndex && this.plugin.settings.agenticEnabled) {
+    // Use whichever trigger appears later (most recent)
+    const maxIndex = Math.max(qmdIndex, ccIndex, claudeIndex);
+
+    if (maxIndex === qmdIndex && qmdIndex !== -1 && this.plugin.settings.qmdEnabled) {
+      this.currentTrigger = 'qmd';
+      return {
+        start: { line: cursor.line, ch: qmdIndex },
+        end: cursor,
+        query: beforeCursor.slice(qmdIndex + qmdTrigger.length).trim(),
+      };
+    } else if (maxIndex === ccIndex && ccIndex !== -1 && this.plugin.settings.agenticEnabled) {
       this.currentTrigger = 'cc';
       return {
         start: { line: cursor.line, ch: ccIndex },
@@ -157,6 +178,11 @@ export class ClaudeSuggester extends EditorSuggest<ClaudeSuggestion> {
   }
 
   getSuggestions(context: EditorSuggestContext): ClaudeSuggestion[] {
+    // If @qmd trigger, show search option
+    if (this.currentTrigger === 'qmd') {
+      return [QMD_SEARCH];
+    }
+
     // If @cc trigger, show the CLI option based on install status
     if (this.currentTrigger === 'cc') {
       // Refresh check in background
@@ -231,9 +257,12 @@ export class ClaudeSuggester extends EditorSuggest<ClaudeSuggestion> {
 
     // Handle search command - open QMD modal
     if (suggestion.type === 'search') {
-      const trigger = this.plugin.settings.inlineTrigger;
-      const triggerIndex = line.lastIndexOf(trigger);
-      // Remove the @claude /search trigger
+      // Check for @qmd trigger first, then @claude
+      const qmdIndex = line.lastIndexOf('@qmd');
+      const claudeIndex = line.lastIndexOf(this.plugin.settings.inlineTrigger);
+      const triggerIndex = qmdIndex > claudeIndex ? qmdIndex : claudeIndex;
+
+      // Remove the trigger text
       if (triggerIndex !== -1) {
         editor.replaceRange('', { line: cursor.line, ch: triggerIndex }, { line: cursor.line, ch: line.length });
       }

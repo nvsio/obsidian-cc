@@ -44,7 +44,6 @@ Type `@claude` anywhere in a note. A dropdown appears with quick commands:
 | `/bullets` | Convert to bullet points |
 | `/explain` | Simplify in plain terms |
 | `/continue` | Continue writing |
-| `/search` | Open QMD semantic search |
 
 Or type any custom prompt after `@claude` (e.g., `@claude make this more formal`).
 
@@ -63,20 +62,18 @@ Type `@cc` to open Claude CLI in your terminal with the full note as context.
 
 ---
 
-### Semantic Search (QMD)
+### `@qmd` - Semantic Search
 
-Press `Cmd+Shift+F` to open semantic search powered by [QMD](https://github.com/tobi/qmd).
+Type `@qmd` to open semantic search powered by [QMD](https://github.com/tobi/qmd).
 
 - Searches by meaning, not just keywords
 - Shows relevance scores
 - Click results to open notes
-- Prompts to install QMD if not found
-- Index your vault on first use
+- Scope: search vault or home directory (configurable)
 
-Requires QMD:
-```bash
-bun install -g https://github.com/tobi/qmd
-```
+Also accessible via `Cmd+Shift+F` hotkey.
+
+If QMD not found, click "Install QMD" to open terminal with install command.
 
 ---
 
