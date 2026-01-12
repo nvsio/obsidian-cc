@@ -238,10 +238,9 @@ export class ClaudeSuggester extends EditorSuggest<ClaudeSuggestion> {
   }
 
   getSuggestions(context: EditorSuggestContext): ClaudeSuggestion[] {
-    // If @qmd trigger, show search or install based on QMD availability
+    // If @qmd trigger, always show search - modal handles if QMD not found
     if (this.currentTrigger === 'qmd') {
-      this.checkQMDInstalled();
-      return this.qmdInstalled === false ? [QMD_INSTALL] : [QMD_SEARCH];
+      return [QMD_SEARCH];
     }
 
     // If @cc trigger, show the CLI option based on install status
