@@ -1,6 +1,8 @@
 import { App, Modal, Setting, Notice, TFile } from 'obsidian';
 import { QMDClient } from '../mcp/integrations/QMDClient';
 import { SearchResult } from '../mcp/types';
+import { spawn } from 'child_process';
+import * as os from 'os';
 
 /**
  * QMD Semantic Search Modal
@@ -28,8 +30,13 @@ export class QMDSearchModal extends Modal {
     // Header
     const header = contentEl.createDiv({ cls: 'cc-qmd-header' });
     header.createEl('h2', { text: '🔍 Semantic Search' });
+
+    const searchPath = this.qmdClient.getSearchPath();
+    const scopeLabel = searchPath.includes('Obsidian') || searchPath.includes('vault')
+      ? 'Vault'
+      : 'Home Directory';
     header.createEl('p', {
-      text: 'Powered by QMD',
+      text: `Searching: ${scopeLabel}`,
       cls: 'cc-qmd-subtitle'
     });
 
@@ -44,7 +51,7 @@ export class QMDSearchModal extends Modal {
     const searchContainer = contentEl.createDiv({ cls: 'cc-qmd-search-container' });
     this.searchInput = searchContainer.createEl('input', {
       type: 'text',
-      placeholder: 'Search your vault semantically...',
+      placeholder: `Search ${scopeLabel.toLowerCase()} semantically...`,
       cls: 'cc-qmd-search-input',
     });
 
@@ -82,6 +89,20 @@ export class QMDSearchModal extends Modal {
     prompt.createEl('h3', { text: 'QMD Not Found' });
     prompt.createEl('p', { text: 'Install QMD for semantic search:' });
 
+    // Install button that opens terminal
+    const installBtn = prompt.createEl('button', {
+      text: '📦 Install QMD',
+      cls: 'cc-qmd-install-btn mod-cta',
+    });
+    installBtn.addEventListener('click', () => {
+      this.openTerminalWithInstall();
+    });
+
+    const orText = prompt.createEl('p', {
+      text: 'Or run manually:',
+      cls: 'cc-qmd-manual-text'
+    });
+
     const code = prompt.createEl('pre');
     code.createEl('code', { text: 'bun install -g https://github.com/tobi/qmd' });
 
@@ -93,6 +114,55 @@ export class QMDSearchModal extends Modal {
       e.preventDefault();
       window.open('https://github.com/tobi/qmd', '_blank');
     });
+  }
+
+  private openTerminalWithInstall(): void {
+    const installCmd = 'bun install -g https://github.com/tobi/qmd';
+    const platform = os.platform();
+
+    if (platform === 'darwin') {
+      // macOS: Open Terminal with install command
+      const script = `
+        tell application "Terminal"
+          activate
+          do script "${installCmd}"
+        end tell
+      `;
+      spawn('osascript', ['-e', script], { detached: true, stdio: 'ignore' }).unref();
+      new Notice('Opening Terminal to install QMD...');
+    } else if (platform === 'win32') {
+      // Windows
+      spawn('cmd', ['/c', 'start', 'cmd', '/k', installCmd], {
+        detached: true,
+        stdio: 'ignore',
+      }).unref();
+      new Notice('Opening terminal to install QMD...');
+    } else {
+      // Linux: Try common terminals
+      const terminals = ['gnome-terminal', 'konsole', 'xfce4-terminal', 'xterm'];
+      for (const term of terminals) {
+        try {
+          if (term === 'gnome-terminal') {
+            spawn(term, ['--', 'bash', '-c', `${installCmd}; exec bash`], {
+              detached: true,
+              stdio: 'ignore',
+            }).unref();
+          } else {
+            spawn(term, ['-e', `bash -c "${installCmd}; exec bash"`], {
+              detached: true,
+              stdio: 'ignore',
+            }).unref();
+          }
+          new Notice('Opening terminal to install QMD...');
+          return;
+        } catch {
+          continue;
+        }
+      }
+      new Notice('Could not open terminal. Please run the command manually.');
+    }
+
+    this.close();
   }
 
   private showIndexPrompt(): void {

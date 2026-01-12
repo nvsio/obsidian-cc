@@ -22,6 +22,16 @@ export class QMDClient {
   }
 
   /**
+   * Get the search path based on settings
+   */
+  getSearchPath(): string {
+    if (this.settings.qmdSearchScope === 'home') {
+      return process.env.HOME || this.vaultPath;
+    }
+    return this.vaultPath;
+  }
+
+  /**
    * Initialize and detect QMD binary location
    */
   async initialize(): Promise<void> {
@@ -80,7 +90,7 @@ export class QMDClient {
   }
 
   /**
-   * Check if vault is indexed
+   * Check if search path is indexed
    */
   async isVaultIndexed(): Promise<boolean> {
     if (!this.qmdPath) {
@@ -88,8 +98,9 @@ export class QMDClient {
     }
 
     try {
-      // Check for .qmd directory
-      const qmdDir = `${this.vaultPath}/.qmd`;
+      // Check for .qmd directory in search path
+      const searchPath = this.getSearchPath();
+      const qmdDir = `${searchPath}/.qmd`;
       return fs.existsSync(qmdDir);
     } catch {
       return false;
@@ -97,20 +108,21 @@ export class QMDClient {
   }
 
   /**
-   * Index the vault
+   * Index the search path
    */
   async index(): Promise<void> {
     if (!this.qmdPath) {
       throw new Error('QMD is not available');
     }
 
+    const searchPath = this.getSearchPath();
     const result = await execFileNoThrow(this.qmdPath, ['index'], {
-      cwd: this.vaultPath,
-      timeout: 300000, // 5 minutes for large vaults
+      cwd: searchPath,
+      timeout: 300000, // 5 minutes for large directories
     });
 
     if (result.status === 'error') {
-      throw new Error(`Failed to index vault: ${result.stderr || result.error?.message}`);
+      throw new Error(`Failed to index: ${result.stderr || result.error?.message}`);
     }
 
     this.isIndexed = true;
@@ -162,8 +174,9 @@ export class QMDClient {
     // Add query as separate argument (safely escaped by execFile)
     args.push(query);
 
+    const searchPath = this.getSearchPath();
     const result = await execFileNoThrow(this.qmdPath, args, {
-      cwd: this.vaultPath,
+      cwd: searchPath,
       timeout: 30000,
     });
 

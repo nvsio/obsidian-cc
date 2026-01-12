@@ -25,6 +25,7 @@ export interface ObsidianCCSettings {
   // QMD Configuration
   qmdEnabled: boolean;
   qmdPath: string;
+  qmdSearchScope: 'vault' | 'home';
   autoIndex: boolean;
   searchMode: 'hybrid' | 'semantic' | 'keyword';
   maxSearchResults: number;
@@ -68,6 +69,7 @@ export const DEFAULT_SETTINGS: ObsidianCCSettings = {
   // QMD - enabled but auto-detect path
   qmdEnabled: true,
   qmdPath: '',
+  qmdSearchScope: 'vault',
   autoIndex: true,
   searchMode: 'hybrid',
   maxSearchResults: 10,
