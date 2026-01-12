@@ -107,14 +107,11 @@ export class ClaudeSuggester extends EditorSuggest<ClaudeSuggestion> {
     const noteContent = await this.plugin.app.vault.read(file);
     const notePath = file.path;
 
-    // Install first if needed
+    // Install opens terminal - don't auto-launch after
     if (suggestion.type === 'cc-install') {
-      new Notice('Installing Claude CLI...');
-      const installed = await this.plugin.claudeCLIService.install();
-      if (!installed) {
-        return;
-      }
-      this.cliInstalled = true;
+      await this.plugin.claudeCLIService.install();
+      new Notice('After install completes, type @cc again to launch');
+      return;
     }
 
     // Launch CLI with note content

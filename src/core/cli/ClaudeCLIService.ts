@@ -27,37 +27,61 @@ export class ClaudeCLIService {
   }
 
   /**
-   * Install Claude CLI via npm
+   * Install Claude CLI by opening terminal with install command
    */
   async install(): Promise<boolean> {
-    return new Promise((resolve) => {
-      new Notice('Installing Claude CLI... This may take a moment.');
+    const installCmd = 'npm install -g @anthropic-ai/claude-code';
+    const platform = os.platform();
 
-      const npm = os.platform() === 'win32' ? 'npm.cmd' : 'npm';
-      const child = spawn(npm, ['install', '-g', '@anthropic-ai/claude-code'], {
-        stdio: 'pipe',
-      });
-
-      let stderr = '';
-      child.stderr?.on('data', (data) => {
-        stderr += data.toString();
-      });
-
-      child.on('close', (code) => {
-        if (code === 0) {
-          new Notice('Claude CLI installed successfully!');
-          resolve(true);
-        } else {
-          new Notice(`Failed to install Claude CLI: ${stderr.slice(0, 100)}`);
-          resolve(false);
+    if (platform === 'darwin') {
+      // macOS: Open Terminal with install command
+      const script = `
+        tell application "Terminal"
+          activate
+          do script "${installCmd}"
+        end tell
+      `;
+      spawn('osascript', ['-e', script], { detached: true, stdio: 'ignore' }).unref();
+      new Notice('Opening Terminal to install Claude CLI...');
+    } else if (platform === 'win32') {
+      // Windows
+      spawn('cmd', ['/c', 'start', 'cmd', '/k', installCmd], {
+        detached: true,
+        stdio: 'ignore',
+      }).unref();
+      new Notice('Opening terminal to install Claude CLI...');
+    } else {
+      // Linux: Try common terminals
+      const terminals = ['gnome-terminal', 'konsole', 'xfce4-terminal', 'xterm'];
+      let launched = false;
+      for (const term of terminals) {
+        try {
+          if (term === 'gnome-terminal') {
+            spawn(term, ['--', 'bash', '-c', `${installCmd}; exec bash`], {
+              detached: true,
+              stdio: 'ignore',
+            }).unref();
+          } else {
+            spawn(term, ['-e', `bash -c "${installCmd}; exec bash"`], {
+              detached: true,
+              stdio: 'ignore',
+            }).unref();
+          }
+          launched = true;
+          new Notice('Opening terminal to install Claude CLI...');
+          break;
+        } catch {
+          continue;
         }
-      });
+      }
+      if (!launched) {
+        new Notice('Could not open terminal. Run: npm install -g @anthropic-ai/claude-code');
+        return false;
+      }
+    }
 
-      child.on('error', (error) => {
-        new Notice(`Failed to install Claude CLI: ${error.message}`);
-        resolve(false);
-      });
-    });
+    // Return true - user will complete install in terminal
+    return true;
   }
 
   /**
