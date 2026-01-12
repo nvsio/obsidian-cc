@@ -1,0 +1,16 @@
+{
+  "name": "obsidian-cc-skills",
+  "version": "1.0.0",
+  "description": "Claude Code skills for Obsidian vault integration via the Obsidian CC MCP server",
+  "author": "Obsidian CC",
+  "skills": ["skills/obsidian-note.md", "skills/obsidian-search.md", "skills/obsidian-tasks.md", "skills/obsidian-project.md"],
+  "agents": ["agents/vault-explorer.md"],
+  "mcp": {
+    "servers": {
+      "obsidian": {
+        "type": "http",
+        "url": "http://127.0.0.1:3333"
+      }
+    }
+  }
+}

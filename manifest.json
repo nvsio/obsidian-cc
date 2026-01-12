@@ -1,0 +1,11 @@
+{
+  "id": "obsidian-cc",
+  "name": "Obsidian CC",
+  "version": "0.1.0",
+  "minAppVersion": "1.5.0",
+  "description": "The ultimate Obsidian companion - Claude AI with QMD semantic search, project management, and GitHub workflows",
+  "author": "",
+  "authorUrl": "",
+  "fundingUrl": "",
+  "isDesktopOnly": true
+}

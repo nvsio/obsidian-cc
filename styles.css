@@ -1,0 +1,763 @@
+/**
+ * Obsidian CC - Main Styles
+ *
+ * Uses CSS custom properties from Obsidian's theme system
+ * for consistent look across themes
+ */
+
+/* ==================== */
+/* Inline Triggers      */
+/* ==================== */
+
+/* Trigger highlighting */
+.cc-inline-trigger {
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: var(--font-monospace);
+  font-size: 0.9em;
+}
+
+.cc-inline-trigger-invalid {
+  background-color: var(--background-modifier-error);
+  color: var(--text-error);
+}
+
+/* Hint widget */
+.cc-inline-hint {
+  color: var(--text-muted);
+  font-size: 0.85em;
+  font-style: italic;
+  margin-left: 8px;
+  opacity: 0.8;
+}
+
+/* Loading indicator */
+.cc-inline-loading {
+  display: inline-block;
+  animation: cc-pulse 1s infinite ease-in-out;
+  margin-left: 4px;
+}
+
+@keyframes cc-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ==================== */
+/* Chat Sidebar         */
+/* ==================== */
+
+.cc-chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0;
+}
+
+.cc-chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.cc-chat-header h4 {
+  margin: 0;
+  font-size: 1em;
+  font-weight: 600;
+}
+
+.cc-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.cc-chat-input-container {
+  border-top: 1px solid var(--background-modifier-border);
+  padding: 12px 16px;
+}
+
+/* Message styles */
+.cc-message {
+  margin-bottom: 16px;
+  max-width: 90%;
+}
+
+.cc-message-user {
+  margin-left: auto;
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  padding: 8px 12px;
+  border-radius: 12px 12px 4px 12px;
+}
+
+.cc-message-assistant {
+  margin-right: auto;
+  background: var(--background-secondary);
+  padding: 8px 12px;
+  border-radius: 12px 12px 12px 4px;
+}
+
+.cc-message-content {
+  line-height: 1.5;
+}
+
+.cc-message-content pre {
+  background: var(--background-primary);
+  padding: 8px;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.cc-message-content code {
+  font-family: var(--font-monospace);
+  font-size: 0.9em;
+}
+
+/* ==================== */
+/* Context Bar          */
+/* ==================== */
+
+.cc-context-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--background-secondary);
+  border-bottom: 1px solid var(--background-modifier-border);
+  font-size: 0.85em;
+}
+
+.cc-context-mode {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cc-context-file {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-muted);
+}
+
+.cc-context-qmd {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-accent);
+}
+
+.cc-token-estimate {
+  margin-left: auto;
+  color: var(--text-muted);
+  font-size: 0.8em;
+}
+
+/* ==================== */
+/* Settings Tab         */
+/* ==================== */
+
+.cc-settings-section {
+  margin-bottom: 24px;
+}
+
+.cc-settings-section h2 {
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.mod-warning {
+  color: var(--text-error);
+  background: var(--background-modifier-error);
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin: 8px 0;
+}
+
+/* ==================== */
+/* Autocomplete         */
+/* ==================== */
+
+.cc-autocomplete {
+  position: absolute;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  min-width: 200px;
+}
+
+.cc-autocomplete-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cc-autocomplete-item:hover,
+.cc-autocomplete-item.selected {
+  background: var(--background-modifier-hover);
+}
+
+.cc-autocomplete-command {
+  font-weight: 500;
+  font-family: var(--font-monospace);
+}
+
+.cc-autocomplete-desc {
+  color: var(--text-muted);
+  font-size: 0.85em;
+}
+
+/* ==================== */
+/* Tool Progress        */
+/* ==================== */
+
+.cc-tool-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--background-secondary);
+  border-radius: 4px;
+  margin: 8px 0;
+  font-size: 0.9em;
+}
+
+.cc-tool-progress-icon {
+  animation: cc-spin 1s linear infinite;
+}
+
+@keyframes cc-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.cc-tool-progress-text {
+  color: var(--text-muted);
+}
+
+/* ==================== */
+/* Permission Dialog    */
+/* ==================== */
+
+.cc-permission-dialog {
+  max-width: 500px;
+}
+
+.cc-permission-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.cc-permission-icon {
+  color: var(--text-warning);
+  font-size: 1.5em;
+}
+
+.cc-permission-content {
+  margin-bottom: 16px;
+}
+
+.cc-permission-operation {
+  background: var(--background-secondary);
+  padding: 12px;
+  border-radius: 4px;
+  font-family: var(--font-monospace);
+  font-size: 0.9em;
+  margin: 8px 0;
+}
+
+.cc-permission-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ==================== */
+/* Ribbon Icon          */
+/* ==================== */
+
+.cc-ribbon-icon {
+  color: var(--icon-color);
+}
+
+.cc-ribbon-icon:hover {
+  color: var(--icon-color-hover);
+}
+
+/* ==================== */
+/* Status Indicators    */
+/* ==================== */
+
+.cc-status-connected {
+  color: var(--color-green);
+}
+
+.cc-status-disconnected {
+  color: var(--text-muted);
+}
+
+.cc-status-error {
+  color: var(--text-error);
+}
+
+/* ==================== */
+/* Project Dashboard    */
+/* ==================== */
+
+.cc-dashboard {
+  padding: 16px;
+}
+
+.cc-dashboard-section {
+  margin-bottom: 24px;
+}
+
+.cc-dashboard-section h3 {
+  margin-bottom: 12px;
+  font-size: 1.1em;
+}
+
+.cc-task-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.cc-task-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.cc-task-checkbox {
+  margin-top: 2px;
+}
+
+.cc-task-content {
+  flex: 1;
+}
+
+.cc-task-due {
+  color: var(--text-muted);
+  font-size: 0.85em;
+}
+
+.cc-task-overdue {
+  color: var(--text-error);
+}
+
+/* ==================== */
+/* MCP Approval Modal   */
+/* ==================== */
+
+.mcp-approval-details {
+  background: var(--background-secondary);
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin: 16px 0;
+  font-family: var(--font-monospace);
+  font-size: 0.9em;
+}
+
+.mcp-approval-row {
+  padding: 4px 0;
+  color: var(--text-normal);
+}
+
+.mcp-approval-row:first-child {
+  font-weight: 600;
+}
+
+.mcp-approval-question {
+  font-weight: 500;
+  margin-top: 16px;
+}
+
+.mcp-approval-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.mcp-approval-buttons button {
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mcp-approval-buttons button.mod-warning {
+  background: var(--background-modifier-error);
+  color: var(--text-error);
+  border: 1px solid var(--background-modifier-error-hover);
+}
+
+.mcp-approval-buttons button.mod-warning:hover {
+  background: var(--background-modifier-error-hover);
+}
+
+.mcp-approval-buttons button.mod-cta {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border: none;
+}
+
+.mcp-approval-buttons button.mod-cta:hover {
+  background: var(--interactive-accent-hover);
+}
+
+/* ==================== */
+/* MCP Server Status    */
+/* ==================== */
+
+.cc-mcp-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--background-secondary);
+  border-radius: 6px;
+  font-size: 0.9em;
+}
+
+.cc-mcp-status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.cc-mcp-status-indicator.running {
+  background: var(--color-green);
+  box-shadow: 0 0 4px var(--color-green);
+}
+
+.cc-mcp-status-indicator.stopped {
+  background: var(--text-muted);
+}
+
+.cc-mcp-port {
+  color: var(--text-muted);
+  font-family: var(--font-monospace);
+}
+
+/* ==================== */
+/* Claude Suggester     */
+/* ==================== */
+
+.cc-suggestion {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 0;
+}
+
+.cc-suggestion-command .cc-suggestion-label {
+  font-family: var(--font-monospace);
+  font-size: 0.9em;
+  color: var(--text-accent);
+}
+
+.cc-suggestion-custom {
+  background: var(--background-modifier-success-rgb, rgba(0, 200, 83, 0.1));
+  margin: -4px -8px;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.cc-suggestion-custom .cc-suggestion-label {
+  color: var(--text-normal);
+  font-weight: 600;
+}
+
+.cc-suggestion-label {
+  font-weight: 500;
+}
+
+.cc-suggestion-description {
+  color: var(--text-muted);
+  font-size: 0.85em;
+}
+
+/* ==================== */
+/* QMD Search Modal     */
+/* ==================== */
+
+.cc-qmd-modal {
+  min-width: 600px;
+}
+
+.cc-qmd-header h2 {
+  margin: 0 0 4px 0;
+}
+
+.cc-qmd-subtitle {
+  color: var(--text-muted);
+  font-size: 0.85em;
+  margin: 0 0 16px 0;
+}
+
+.cc-qmd-search-container {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.cc-qmd-search-input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+  font-size: 1em;
+}
+
+.cc-qmd-search-input:focus {
+  border-color: var(--interactive-accent);
+  outline: none;
+}
+
+.cc-qmd-search-btn {
+  padding: 10px 20px;
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.cc-qmd-search-btn:hover {
+  background: var(--interactive-accent-hover);
+}
+
+.cc-qmd-status {
+  padding: 8px 0;
+  font-size: 0.9em;
+  color: var(--text-muted);
+}
+
+.cc-qmd-status-warning {
+  color: var(--text-warning);
+}
+
+.cc-qmd-status-error {
+  color: var(--text-error);
+}
+
+.cc-qmd-index-btn {
+  margin-left: 8px;
+  padding: 4px 12px;
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cc-qmd-results {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.cc-qmd-result-item {
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 8px;
+  background: var(--background-secondary);
+  transition: background 0.15s ease;
+}
+
+.cc-qmd-result-item:hover {
+  background: var(--background-modifier-hover);
+}
+
+.cc-qmd-result-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.cc-qmd-result-title {
+  font-weight: 600;
+  color: var(--text-normal);
+}
+
+.cc-qmd-result-score {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75em;
+  font-weight: 600;
+}
+
+.cc-qmd-result-snippet {
+  color: var(--text-muted);
+  font-size: 0.9em;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.cc-qmd-result-path {
+  color: var(--text-faint);
+  font-size: 0.8em;
+  font-family: var(--font-monospace);
+}
+
+.cc-qmd-no-results {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-muted);
+}
+
+.cc-qmd-install-prompt {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.cc-qmd-install-prompt pre {
+  background: var(--background-secondary);
+  padding: 12px;
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+.cc-qmd-install-prompt a {
+  color: var(--text-accent);
+}
+
+/* ==================== */
+/* Quick Ask Modal      */
+/* ==================== */
+
+.cc-quick-ask-modal {
+  min-width: 500px;
+}
+
+.cc-quick-ask-header h2 {
+  margin: 0 0 16px 0;
+}
+
+.cc-quick-ask-context {
+  background: var(--background-secondary);
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  font-size: 0.85em;
+  color: var(--text-muted);
+}
+
+.cc-quick-ask-input-container {
+  margin-bottom: 12px;
+}
+
+.cc-quick-ask-input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+  font-size: 1em;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.cc-quick-ask-input:focus {
+  border-color: var(--interactive-accent);
+  outline: none;
+}
+
+.cc-quick-ask-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.cc-quick-ask-hint {
+  color: var(--text-faint);
+  font-size: 0.8em;
+}
+
+.cc-quick-ask-submit {
+  padding: 10px 24px;
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.cc-quick-ask-submit:hover {
+  background: var(--interactive-accent-hover);
+}
+
+.cc-quick-ask-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cc-quick-ask-response {
+  min-height: 100px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.cc-quick-ask-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  padding: 40px;
+}
+
+.cc-quick-ask-has-response {
+  background: var(--background-secondary);
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.cc-quick-ask-error {
+  background: var(--background-modifier-error);
+  color: var(--text-error);
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.cc-quick-ask-copy,
+.cc-quick-ask-insert {
+  margin-top: 12px;
+  margin-right: 8px;
+  padding: 6px 12px;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85em;
+}
+
+.cc-quick-ask-copy:hover,
+.cc-quick-ask-insert:hover {
+  background: var(--background-modifier-hover);
+}

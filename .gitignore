@@ -1,0 +1,35 @@
+# Build output (main.js included for easy install)
+# main.js
+*.js.map
+
+# npm
+node_modules/
+package-lock.json
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# TypeScript
+*.tsbuildinfo
+
+# Test coverage
+coverage/
+
+# Environment (API keys should NEVER be committed)
+.env
+.env.local
+.env.*.local
+
+# Obsidian
+data.json
+
+# Claude Code
+CLAUDE.md
+
+# OS
+Thumbs.db
+SESSION_CONTEXT.md
