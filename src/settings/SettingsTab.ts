@@ -4,6 +4,7 @@ import {
   MODEL_OPTIONS,
   TASK_FORMAT_OPTIONS,
   SEARCH_MODE_OPTIONS,
+  THINKING_ANIMATION_OPTIONS,
 } from './SettingsSchema';
 
 /**
@@ -281,6 +282,22 @@ export class SettingsTab extends PluginSettingTab {
           .setValue(this.plugin.settings.agenticTrigger)
           .onChange(async (value) => {
             this.plugin.settings.agenticTrigger = value || '@cc';
+            await this.plugin.saveSettings();
+          });
+      });
+
+    // Thinking animation
+    new Setting(containerEl)
+      .setName('Thinking animation')
+      .setDesc('Visual indicator while waiting for AI response')
+      .addDropdown((dropdown) => {
+        for (const option of THINKING_ANIMATION_OPTIONS) {
+          dropdown.addOption(option.value, option.label);
+        }
+        dropdown
+          .setValue(this.plugin.settings.thinkingAnimation)
+          .onChange(async (value: 'cursor' | 'dots' | 'braille' | 'pulse' | 'ellipsis') => {
+            this.plugin.settings.thinkingAnimation = value;
             await this.plugin.saveSettings();
           });
       });

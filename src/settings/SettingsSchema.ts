@@ -21,6 +21,7 @@ export interface ObsidianCCSettings {
   agenticEnabled: boolean;
   inlineTrigger: string;
   agenticTrigger: string;
+  thinkingAnimation: 'cursor' | 'dots' | 'braille' | 'pulse' | 'ellipsis';
 
   // QMD Configuration
   qmdEnabled: boolean;
@@ -65,6 +66,7 @@ export const DEFAULT_SETTINGS: ObsidianCCSettings = {
   agenticEnabled: true,
   inlineTrigger: '@claude',
   agenticTrigger: '@cc',
+  thinkingAnimation: 'cursor',
 
   // QMD - enabled but auto-detect path
   qmdEnabled: true,
@@ -117,3 +119,22 @@ export const SEARCH_MODE_OPTIONS = [
   { value: 'semantic', label: 'Semantic Only' },
   { value: 'keyword', label: 'Keyword Only (Fastest)' },
 ] as const;
+
+/**
+ * Thinking animation options
+ */
+export const THINKING_ANIMATION_OPTIONS = [
+  { value: 'cursor', label: '▍ Cursor (Default)', char: '▍' },
+  { value: 'dots', label: '●●● Dots', char: '●●●' },
+  { value: 'braille', label: '⣿ Braille', char: '⣿' },
+  { value: 'pulse', label: '◉ Pulse', char: '◉' },
+  { value: 'ellipsis', label: '… Ellipsis', char: '…' },
+] as const;
+
+/**
+ * Get the thinking animation character for a given animation type
+ */
+export function getThinkingChar(animation: string): string {
+  const option = THINKING_ANIMATION_OPTIONS.find(o => o.value === animation);
+  return option?.char ?? '▍';
+}

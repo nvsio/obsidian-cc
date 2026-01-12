@@ -9,6 +9,7 @@ import {
 } from 'obsidian';
 import type ObsidianCCPlugin from '../../main';
 import { QMDSearchModal } from '../../ui/QMDSearchModal';
+import { getThinkingChar } from '../../settings/SettingsSchema';
 import { spawn } from 'child_process';
 import * as os from 'os';
 
@@ -379,9 +380,10 @@ export class ClaudeSuggester extends EditorSuggest<ClaudeSuggestion> {
 
     try {
       // Replace trigger line with loading indicator
+      const thinkingChar = getThinkingChar(this.plugin.settings.thinkingAnimation);
       const lineStart = { line: cursor.line, ch: triggerIndex };
       const lineEnd = { line: cursor.line, ch: line.length };
-      editor.replaceRange('▍', lineStart, lineEnd);
+      editor.replaceRange(thinkingChar, lineStart, lineEnd);
 
       // Build the full prompt
       const fullPrompt = `Here is the text:\n\n${context}\n\n---\n\n${userPrompt}\n\nRespond with only the result, no explanations or preamble.`;
@@ -394,12 +396,12 @@ export class ClaudeSuggester extends EditorSuggest<ClaudeSuggestion> {
 
       // Replace loading with result
       const currentLine = editor.getLine(cursor.line);
-      const loadingIndex = currentLine.indexOf('▍');
+      const loadingIndex = currentLine.indexOf(thinkingChar);
       if (loadingIndex !== -1) {
         editor.replaceRange(
           result.trim(),
           { line: cursor.line, ch: loadingIndex },
-          { line: cursor.line, ch: loadingIndex + 1 }
+          { line: cursor.line, ch: loadingIndex + thinkingChar.length }
         );
       } else {
         // Fallback: append result
@@ -407,17 +409,18 @@ export class ClaudeSuggester extends EditorSuggest<ClaudeSuggestion> {
       }
 
     } catch (error) {
+      const thinkingChar = getThinkingChar(this.plugin.settings.thinkingAnimation);
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
       new Notice(`Error: ${errorMsg}`);
 
       // Replace loading with error indicator
       const currentLine = editor.getLine(cursor.line);
-      const loadingIndex = currentLine.indexOf('▍');
+      const loadingIndex = currentLine.indexOf(thinkingChar);
       if (loadingIndex !== -1) {
         editor.replaceRange(
           `❌ ${errorMsg}`,
           { line: cursor.line, ch: loadingIndex },
-          { line: cursor.line, ch: loadingIndex + 1 }
+          { line: cursor.line, ch: loadingIndex + thinkingChar.length }
         );
       }
     } finally {
