@@ -8,9 +8,10 @@ import {
   Notice,
 } from 'obsidian';
 import type ObsidianCCPlugin from '../../main';
+import { QMDSearchModal } from '../../ui/QMDSearchModal';
 
 interface ClaudeSuggestion {
-  type: 'command' | 'custom' | 'cc' | 'cc-install';
+  type: 'command' | 'custom' | 'cc' | 'cc-install' | 'search';
   command?: string;
   label: string;
   description: string;
@@ -26,6 +27,7 @@ const QUICK_COMMANDS: ClaudeSuggestion[] = [
   { type: 'command', command: 'bullets', label: '/bullets', description: 'Convert to bullet points' },
   { type: 'command', command: 'explain', label: '/explain', description: 'Explain in simpler terms' },
   { type: 'command', command: 'continue', label: '/continue', description: 'Continue writing' },
+  { type: 'search', label: '/search', description: 'Semantic search vault (QMD)' },
 ];
 
 // Command to prompt mapping
@@ -227,6 +229,18 @@ export class ClaudeSuggester extends EditorSuggest<ClaudeSuggestion> {
     // Handle @cc triggers (CLI launch/install)
     if (suggestion.type === 'cc' || suggestion.type === 'cc-install') {
       await this.handleCCSelection(suggestion, editor, cursor, line);
+      return;
+    }
+
+    // Handle search command - open QMD modal
+    if (suggestion.type === 'search') {
+      const trigger = this.plugin.settings.inlineTrigger;
+      const triggerIndex = line.lastIndexOf(trigger);
+      // Remove the @claude /search trigger
+      if (triggerIndex !== -1) {
+        editor.replaceRange('', { line: cursor.line, ch: triggerIndex }, { line: cursor.line, ch: line.length });
+      }
+      new QMDSearchModal(this.plugin.app, this.plugin.qmdClient).open();
       return;
     }
 
