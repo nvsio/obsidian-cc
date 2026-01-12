@@ -9,9 +9,11 @@ import {
 } from 'obsidian';
 import type ObsidianCCPlugin from '../../main';
 import { QMDSearchModal } from '../../ui/QMDSearchModal';
+import { spawn } from 'child_process';
+import * as os from 'os';
 
 interface ClaudeSuggestion {
-  type: 'command' | 'custom' | 'cc' | 'cc-install' | 'search';
+  type: 'command' | 'custom' | 'cc' | 'cc-install' | 'search' | 'qmd-install';
   command?: string;
   label: string;
   description: string;
@@ -54,11 +56,17 @@ const CC_INSTALL: ClaudeSuggestion = {
   description: 'Install and launch Claude CLI',
 };
 
-// @qmd option
+// @qmd options
 const QMD_SEARCH: ClaudeSuggestion = {
   type: 'search',
   label: '🔍 Semantic Search',
   description: 'Search vault with QMD',
+};
+
+const QMD_INSTALL: ClaudeSuggestion = {
+  type: 'qmd-install',
+  label: '📦 Install QMD',
+  description: 'Install QMD for semantic search',
 };
 
 /**
@@ -73,15 +81,67 @@ export class ClaudeSuggester extends EditorSuggest<ClaudeSuggestion> {
   private isExecuting = false;
   private currentTrigger: 'claude' | 'cc' | 'qmd' = 'claude';
   private cliInstalled: boolean | null = null;
+  private qmdInstalled: boolean | null = null;
 
   constructor(plugin: ObsidianCCPlugin) {
     super(plugin.app);
     this.plugin = plugin;
     this.checkCLIInstalled();
+    this.checkQMDInstalled();
   }
 
   private async checkCLIInstalled(): Promise<void> {
     this.cliInstalled = await this.plugin.claudeCLIService.isInstalled();
+  }
+
+  private async checkQMDInstalled(): Promise<void> {
+    this.qmdInstalled = await this.plugin.qmdClient.isAvailable();
+  }
+
+  /**
+   * Open terminal with a command
+   */
+  private openTerminalWithCommand(cmd: string): void {
+    const platform = os.platform();
+
+    if (platform === 'darwin') {
+      const script = `
+        tell application "Terminal"
+          activate
+          do script "${cmd}"
+        end tell
+      `;
+      spawn('osascript', ['-e', script], { detached: true, stdio: 'ignore' }).unref();
+      new Notice('Opening Terminal...');
+    } else if (platform === 'win32') {
+      spawn('cmd', ['/c', 'start', 'cmd', '/k', cmd], {
+        detached: true,
+        stdio: 'ignore',
+      }).unref();
+      new Notice('Opening terminal...');
+    } else {
+      const terminals = ['gnome-terminal', 'konsole', 'xfce4-terminal', 'xterm'];
+      for (const term of terminals) {
+        try {
+          if (term === 'gnome-terminal') {
+            spawn(term, ['--', 'bash', '-c', `${cmd}; exec bash`], {
+              detached: true,
+              stdio: 'ignore',
+            }).unref();
+          } else {
+            spawn(term, ['-e', `bash -c "${cmd}; exec bash"`], {
+              detached: true,
+              stdio: 'ignore',
+            }).unref();
+          }
+          new Notice('Opening terminal...');
+          return;
+        } catch {
+          continue;
+        }
+      }
+      new Notice('Could not open terminal');
+    }
   }
 
   /**
@@ -178,9 +238,10 @@ export class ClaudeSuggester extends EditorSuggest<ClaudeSuggestion> {
   }
 
   getSuggestions(context: EditorSuggestContext): ClaudeSuggestion[] {
-    // If @qmd trigger, show search option
+    // If @qmd trigger, show search or install based on QMD availability
     if (this.currentTrigger === 'qmd') {
-      return [QMD_SEARCH];
+      this.checkQMDInstalled();
+      return this.qmdInstalled === false ? [QMD_INSTALL] : [QMD_SEARCH];
     }
 
     // If @cc trigger, show the CLI option based on install status
@@ -252,6 +313,17 @@ export class ClaudeSuggester extends EditorSuggest<ClaudeSuggestion> {
     // Handle @cc triggers (CLI launch/install)
     if (suggestion.type === 'cc' || suggestion.type === 'cc-install') {
       await this.handleCCSelection(suggestion, editor, cursor, line);
+      return;
+    }
+
+    // Handle @qmd install - open terminal with install command
+    if (suggestion.type === 'qmd-install') {
+      const qmdIndex = line.lastIndexOf('@qmd');
+      if (qmdIndex !== -1) {
+        editor.replaceRange('', { line: cursor.line, ch: qmdIndex }, { line: cursor.line, ch: line.length });
+      }
+      this.openTerminalWithCommand('bun install -g https://github.com/tobi/qmd');
+      new Notice('After install completes, type @qmd again to search');
       return;
     }
 
