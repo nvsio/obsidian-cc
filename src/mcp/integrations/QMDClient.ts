@@ -6,6 +6,7 @@
  */
 
 import * as fs from 'fs';
+import * as os from 'os';
 import { SearchResult, SearchOptions } from '../types';
 import { execFileNoThrow, findCommand } from '../../utils/execFileNoThrow';
 import type { ObsidianCCSettings } from '../../settings/SettingsSchema';
@@ -42,49 +43,51 @@ export class QMDClient {
    * Detect QMD binary location
    */
   private async detectQMD(): Promise<string | null> {
-    // Check settings first
+    // Check settings first (user-specified path)
     if (this.settings.qmdPath && fs.existsSync(this.settings.qmdPath)) {
       return this.settings.qmdPath;
     }
 
-    const home = process.env.HOME || '';
+    // Use os.homedir() which works reliably in sandboxed environments
+    const home = os.homedir();
 
-    // Check all common QMD install locations
+    // Common QMD install locations
     const qmdPaths = [
+      // Bun global install (primary install method for QMD)
       `${home}/.bun/bin/qmd`,
-      `${home}/.local/bin/qmd`,
+      // Standard Unix paths
       '/usr/local/bin/qmd',
       '/opt/homebrew/bin/qmd',
+      `${home}/.local/bin/qmd`,
       '/usr/bin/qmd',
-      // npm global installs
-      `${home}/.npm-global/bin/qmd`,
-      '/usr/local/lib/node_modules/.bin/qmd',
-      // cargo installs (if QMD is built from source)
+      // Cargo (if built from source)
       `${home}/.cargo/bin/qmd`,
     ];
 
-    // Check each path directly
+    // Check each path - verify file exists and is executable
     for (const qmdPath of qmdPaths) {
-      if (fs.existsSync(qmdPath)) {
-        // Verify it's executable
-        const result = await execFileNoThrow(qmdPath, ['--version'], { timeout: 5000 });
-        if (result.status === 'success') {
-          return qmdPath;
+      try {
+        if (fs.existsSync(qmdPath)) {
+          const result = await execFileNoThrow(qmdPath, ['--version'], { timeout: 5000 });
+          if (result.status === 'success') {
+            return qmdPath;
+          }
         }
+      } catch {
+        // Continue to next path
       }
     }
 
-    // Fallback: use findCommand which also tries 'which'
-    return findCommand('qmd', qmdPaths);
+    // Fallback: use 'which' to find in PATH
+    return findCommand('qmd', []);
   }
 
   /**
-   * Check if QMD is available
+   * Check if QMD is available - always re-detects
    */
   async isAvailable(): Promise<boolean> {
-    if (!this.qmdPath) {
-      this.qmdPath = await this.detectQMD();
-    }
+    // Always re-detect in case QMD was installed since last check
+    this.qmdPath = await this.detectQMD();
 
     if (!this.qmdPath) {
       return false;
